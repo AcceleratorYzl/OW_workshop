@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>守望先锋工坊文字转换器</title>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --success-color: #107c10;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            color: var(--text-main);
+        }
+
+        /* 顶部标题栏 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            background: #fa9c1e; /* OW Orange */
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            background-color: #e5e7eb;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: all 0.3s ease;
+        }
+
+        .status-encrypt { background-color: #dbeafe; color: #1e40af; } /* 蓝 */
+        .status-decrypt { background-color: #dcfce7; color: #166534; } /* 绿 */
+
+        /* 主容器 */
+        .workspace {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            min-height: 0; /* 防止溢出 */
+        }
+
+        /* 输入/输出卡片 */
+        .card {
+            flex: 1;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .card-header {
+            padding: 12px 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            border: none;
+            padding: 20px;
+            resize: none;
+            font-size: 16px;
+            font-family: Consolas, 'Courier New', monospace;
+            line-height: 1.6;
+            outline: none;
+            box-sizing: border-box;
+            background: transparent;
+        }
+
+        /* 复制按钮 */
+        .copy-btn {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        .copy-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .workspace { flex-direction: column; }
+            body { height: auto; min-height: 100vh; }
+            textarea { min-height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>
+            <div class="logo-icon">OW</div>
+            工坊文字转换器
+        </h1>
+        <span id="status" class="status-badge">等待输入...</span>
+    </div>
+
+    <div class="workspace">
+        <!-- 左侧输入区 -->
+        <div class="card">
+            <div class="card-header">
+                <span>输入 (自动识别)</span>
+            </div>
+            <textarea id="input" placeholder="请在此粘贴代码或输入文字...&#10;&#10;支持：&#10;1. 普通中文 -> 自动转工坊乱码&#10;2. 乱码(0x20000) -> 自动还原&#10;3. 乱码(0xE0000) -> 自动还原"></textarea>
+        </div>
+
+        <!-- 右侧输出区 -->
+        <div class="card">
+            <div class="card-header">
+                <span>结果输出</span>
+                <button class="copy-btn" onclick="copyResult()">复制结果</button>
+            </div>
+            <textarea id="output" readonly placeholder="转换结果将显示在这里..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        const inputEl = document.getElementById('input');
+        const outputEl = document.getElementById('output');
+        const statusEl = document.getElementById('status');
+
+        // 偏移量常量
+        const OFFSET_STD = 0x20000;   // 常见的 Plane 2 偏移
+        const OFFSET_HIGH = 0xE0000;  // 罕见的 Plane 14 偏移 (你遇到的)
+
+        function processText(text) {
+            if (!text) {
+                statusEl.className = 'status-badge';
+                statusEl.textContent = "等待输入...";
+                return "";
+            }
+
+            const charArray = Array.from(text);
+            let hasEncryptedChar = false;
+            let encryptionType = "";
+
+            // 1. 预扫描：判断输入的是“乱码”还是“普通字”
+            for (let char of charArray) {
+                const code = char.codePointAt(0);
+                if (code >= OFFSET_STD) {
+                    hasEncryptedChar = true;
+                    // 如果发现超大偏移，标记为高级加密
+                    if (code >= OFFSET_HIGH) encryptionType = "high";
+                    break;
+                }
+            }
+
+            // 2. 根据扫描结果处理
+            if (hasEncryptedChar) {
+                // === 解密模式 (还原) ===
+                statusEl.className = 'status-badge status-decrypt';
+                statusEl.textContent = encryptionType === "high" ? "🔵 检测到高级加密 (还原中)" : "🟢 检测到普通加密 (还原中)";
+                
+                return charArray.map(char => {
+                    const code = char.codePointAt(0);
+                    
+                    // 优先解密高级偏移 (0xE0000)
+                    if (code >= OFFSET_HIGH) {
+                        return String.fromCodePoint(code - OFFSET_HIGH);
+                    }
+                    // 其次解密普通偏移 (0x20000)
+                    // 注意排除 U+E0020 (Tag Space) 等无需解密的特殊符
+                    else if (code >= OFFSET_STD && code < 0xE0000) {
+                        // 简单的范围保护，防止误伤其他符号，但通常工坊乱码都在 Plane 2
+                        return String.fromCodePoint(code - OFFSET_STD);
+                    }
+                    return char;
+                }).join('');
+
+            } else {
+                // === 加密模式 (生成) ===
+                statusEl.className = 'status-badge status-encrypt';
+                statusEl.textContent = "🔵 输入普通文字 (加密中)";
+
+                return charArray.map(char => {
+                    const code = char.codePointAt(0);
+                    // 换行符保持
+                    if (code === 10) return '\n';
+                    // 默认生成标准的 0x20000 偏移 (兼容性最好)
+                    try {
+                        return String.fromCodePoint(code + OFFSET_STD);
+                    } catch (e) {
+                        return char;
+                    }
+                }).join('');
+            }
+        }
+
+        // 监听输入
+        inputEl.addEventListener('input', () => {
+            outputEl.value = processText(inputEl.value);
+        });
+
+        // 复制功能
+        function copyResult() {
+            outputEl.select();
+            document.execCommand('copy');
+            const btn = document.querySelector('.copy-btn');
+            const originalText = btn.textContent;
+            btn.textContent = "已复制!";
+            setTimeout(() => btn.textContent = originalText, 1500);
+        }
+
+        // 自动聚焦
+        inputEl.focus();
+    </script>
+</body>
+</html>
