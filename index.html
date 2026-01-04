@@ -163,7 +163,7 @@
             <div class="card-header">
                 <span>输入 (自动识别)</span>
             </div>
-            <textarea id="input" placeholder="请在此粘贴代码或输入文字...&#10;&#10;支持：&#10;1. 普通中文 -> 自动转工坊乱码&#10;2. 乱码(0x20000) -> 自动还原&#10;3. 乱码(0xE0000) -> 自动还原"></textarea>
+            <textarea id="input" placeholder="请在此粘贴代码或输入文字...&#10;&#10;支持：&#10;1. 普通中文 -> 自动转工坊加密文字&#10;2. 加密文字(0x20000) -> 自动还原&#10;3. 加密文字(0xE0000) -> 自动还原"></textarea>
         </div>
 
         <!-- 右侧输出区 -->
@@ -196,7 +196,7 @@
             let hasEncryptedChar = false;
             let encryptionType = "";
 
-            // 1. 预扫描：判断输入的是“乱码”还是“普通字”
+            // 1. 预扫描：判断输入的是“加密文字”还是“普通字”
             for (let char of charArray) {
                 const code = char.codePointAt(0);
                 if (code >= OFFSET_STD) {
@@ -223,7 +223,7 @@
                     // 其次解密普通偏移 (0x20000)
                     // 注意排除 U+E0020 (Tag Space) 等无需解密的特殊符
                     else if (code >= OFFSET_STD && code < 0xE0000) {
-                        // 简单的范围保护，防止误伤其他符号，但通常工坊乱码都在 Plane 2
+                        // 简单的范围保护，防止误伤其他符号，但通常工坊加密文字都在 Plane 2
                         return String.fromCodePoint(code - OFFSET_STD);
                     }
                     return char;
@@ -268,3 +268,4 @@
     </script>
 </body>
 </html>
+
