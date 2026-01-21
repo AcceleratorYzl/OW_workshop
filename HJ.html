@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OW RPG 存档生成器</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --panel-bg: rgba(31, 40, 51, 0.9);
+            --input-bg: #121418;
+            --accent: #66fcf1; /* 科技青 */
+            --text-main: #e0e0e0;
+            --text-muted: #888;
+            --border: #45a29e;
+            --danger: #ff4d4d;
+            --gold: #ffd700;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, #1f2833 0%, #0b0c10 80%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(69, 162, 158, 0.2);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .panel:hover {
+            border-color: rgba(69, 162, 158, 0.5);
+            transform: translateY(-2px);
+        }
+
+        h2 {
+            margin: 0 0 20px 0;
+            font-size: 1.1rem;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        .field-group { display: flex; flex-direction: column; }
+
+        label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+        
+        /* 为了适应原来功能逻辑的特殊标签样式 */
+        .chk-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .chk-label {
+            color: var(--text-main);
+            font-weight: normal;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input, select {
+            background: var(--input-bg);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: 'Consolas', 'Segoe UI', sans-serif;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(102, 252, 241, 0.15);
+        }
+
+        input[readonly] {
+            color: var(--text-muted);
+            border-style: dashed;
+        }
+
+        .hint {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .output-section {
+            background: #000;
+            border: 1px dashed var(--border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .code-display {
+            font-family: 'Consolas', monospace;
+            font-size: 1.8rem; /* 稍微调小一点以适应更长的27位 */
+            color: var(--accent);
+            margin: 15px 0;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(102, 252, 241, 0.3);
+            word-break: break-all;
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 10px 40px;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .copy-msg {
+            height: 20px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--gold);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>RPG 存档生成器</h1>
+        <div class="subtitle">皇家赛道 · 逆天修仙传2.0</div>
+    </header>
+
+    <!-- ID 与 核心参数 -->
+    <div class="panel">
+        <h2>身份信息 (Identity)</h2>
+        <div class="grid-2">
+            <div class="field-group">
+                <label>玩家 ID (必填)</label>
+                <input type="text" id="pid" value="SquareEnix" placeholder="区分大小写">
+                <div class="hint">如果不输入无法生成</div>
+            </div>
+            <div class="field-group">
+                <label>加密 Key (Salt)</label>
+                <select id="key">
+                    <option value="3">Type 3</option>
+                    <option value="4">Type 4</option>
+                    <option value="5">Type 5</option>
+                    <option value="6" selected>Type 6</option>
+                    <option value="7">Type 7</option>
+                    <option value="8">Type 8</option>
+                    <option value="9">Type 9</option>
+                </select>
+                <div class="hint">随机盐值</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 门派与状态 -->
+    <div class="panel">
+        <h2>门派与状态 (Sect & Stats)</h2>
+        <div class="grid-4">
+            <!-- 门派 -->
+            <div class="field-group">
+                <label>门派归属</label>
+                <select id="sect"></select>
+            </div>
+            <!-- 职位 -->
+            <div class="field-group">
+                <label>门派职位</label>
+                <select id="role"></select>
+            </div>
+            <!-- 功勋 -->
+            <div class="field-group">
+                <label>门派功勋</label>
+                <input type="number" id="merit">
+                <div class="hint">上限 10000</div>
+            </div>
+             <!-- 等级(只读) -->
+             <div class="field-group">
+                <label>人物等级</label>
+                <input type="text" id="lv" readonly>
+                <div class="hint">根据精纯自动计算</div>
+            </div>
+        </div>
+        <div style="height: 15px;"></div>
+        <div class="grid-4">
+            <!-- 精纯 -->
+            <div class="field-group">
+                <label>精纯等级</label>
+                <input type="number" id="tier" max="18" min="0" value="18">
+                <div class="hint">0 - 18</div>
+            </div>
+            <!-- 轮回 -->
+            <div class="field-group">
+                <label>轮回周目</label>
+                <input type="number" id="cycle" value="10" max="10" min="0">
+                <div class="hint">Max 10</div>
+            </div>
+             <!-- 金钱 -->
+             <div class="field-group">
+                <label>持有金钱</label>
+                <input type="number" id="money" value="3500000" step="10000">
+                <div class="hint">Max 350W</div>
+            </div>
+            <!-- 历练 -->
+            <div class="field-group">
+                <label>历练值</label>
+                <input type="number" id="exp" value="100000" step="1000">
+                <div class="hint">Max 10W</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 气运与配置 -->
+    <div class="panel">
+        <h2>气运与功能 (Luck & Config)</h2>
+        <div class="grid-2">
+            <div class="field-group">
+                <label>先天气运</label>
+                <select id="luck"></select>
+            </div>
+            <div class="field-group">
+                <label>功能开关</label>
+                <div class="chk-group">
+                    <label class="chk-label"><input type="checkbox" id="ck_bk" checked> 奇书 (Books)</label>
+                    <label class="chk-label"><input type="checkbox" id="ck_sk" checked> 内功 (Arts)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- 专属宝物 -->
+    <div class="panel">
+        <h2>专属宝物 (Special Treasure)</h2>
+        <!-- 修改说明：去掉 class="grid-4"，改为 flex 布局并设定 gap -->
+        <div style="display: flex; gap: 15px;">
+            
+            <!-- 主词条：文字最长，分配 2 份宽度 -->
+            <div class="field-group" style="flex: 2;">
+                <label>主词条</label>
+                <select id="tm"></select>
+            </div>
+
+            <!-- 副词条：文字中等，分配 2 份宽度 -->
+            <div class="field-group" style="flex: 2;">
+                <label>副词条</label>
+                <select id="ts"></select>
+            </div>
+
+            <!-- 品阶：文字较短，分配 2 份宽度 -->
+            <div class="field-group" style="flex: 2;">
+                <label>品阶</label>
+                <select id="tg" class="g-sel"></select>
+            </div>
+
+            <!-- 强化：只要显示数字，分配 1 份宽度即可 -->
+            <div class="field-group" style="flex: 1;">
+                <label>强化等级</label>
+                <input type="number" id="te" value="99" max="99">
+                <div class="hint">Max 99</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 四件套 -->
+    <div class="panel">
+        <h2>装备配置 (Equipment)</h2>
+        <div class="grid-2">
+            <!-- 武器 -->
+            <div style="display: flex; gap: 10px;">
+                <div class="field-group" style="flex: 1.9;">
+                    <label>武器 (Weapon)</label>
+                    <select id="gw"></select>
+                </div>
+                <div class="field-group" style="flex: 1.1;">
+                    <label>品阶</label>
+                    <select id="grw" class="g-sel"></select>
+                </div>
+            </div>
+
+            <!-- 头盔 -->
+             <div style="display: flex; gap: 10px;">
+                <div class="field-group" style="flex: 1.9;">
+                    <label>冠饰 (Helm)</label>
+                    <select id="gh"></select>
+                </div>
+                <div class="field-group" style="flex: 1.1;">
+                    <label>品阶</label>
+                    <select id="grh" class="g-sel"></select>
+                </div>
+            </div>
+
+            <!-- 护甲 -->
+            <div style="display: flex; gap: 10px;">
+                <div class="field-group" style="flex: 1.9;">
+                    <label>护甲 (Armor)</label>
+                    <select id="gb"></select>
+                </div>
+                <div class="field-group" style="flex: 1.1;">
+                    <label>品阶</label>
+                    <select id="grb" class="g-sel"></select>
+                </div>
+            </div>
+
+            <!-- 护手 -->
+            <div style="display: flex; gap: 10px;">
+                <div class="field-group" style="flex: 1.9;">
+                    <label>护手 (Arms)</label>
+                    <select id="ga"></select>
+                </div>
+                <div class="field-group" style="flex: 1.1;">
+                    <label>品阶</label>
+                    <select id="gra" class="g-sel"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 输出 -->
+    <div class="output-section">
+        <div style="color:var(--text-muted); font-size:0.9rem;">生成的 27 位存档码</div>
+        <div class="code-display" id="output">---- LOADING ----</div>
+        <button class="btn" onclick="copyCode()">复制存档码</button>
+        <div class="copy-msg" id="msg"></div>
+    </div>
+
+</div>
+
+<script>
+    /* ================= 数据定义区域 (原逻辑保持不变) ================= */
+    const MAP = "8-F-L-1-B-9-O-G-E-R-H-2-C-4-3-Z-J-M-Q-A-Y-P-K-5-V-6-D-T-7-U-W-X".split("-");
+    let F32_VAL = new Float32Array(1);
+
+    const D = {
+        s: ["无门派", "金刚宗", "五仙教", "璇女派", "铸剑山庄", "血犼教"],
+        r: [
+            ["流浪者"],
+            ["净火童","罗刹院弟子","金刚院弟子","不动殿弟子","金刚力士","护法尊者","上尊","明王","法王"],
+            ["教众","五毒部众","花蛊部众","五毒使","仙娘使","族长","巫相","圣女","教主"],
+            ["婢子","外门弟子","内门弟子","天音阁弟子","守玉人","霓裳使","羽衣使","大师姐","掌门"],
+            ["火工","学徒","青君匠","百辟匠","镇山匠","玄鸿匠","七星匠","宗匠","庄主"],
+            ["杂役","教众","精英","血童子","护法","血犼圣使","长老","副教主","教主"]
+        ],
+        lk: ["无","磨砺","聚财","牛刀小试","天生战狂","凤凰灵体","不动明王","金刚不坏","武圣转世","天命之子"],
+        tm: [" [01]降龙玄铁戒 (攻击)", "[02] 万象云光帕 (血量)", "[03] 昆仑玉册 (破体)", "[04] 涅槃珠 (御体)", "[05] 九乌眼 (吸血)", "[06] 上尊金身 (减伤)", "[07] 开天珠 (暴击率)", "[08] 雷鼓灵旗 (暴击伤害)", "[09] 紫皇香炉 (治疗量)"],
+        ts: [" [00]无", "[01] 攻击", "[02] 生命", "[03] 破体", "[04] 御体", "[05] 吸血", "[06] 减伤", "[07] 暴击", "[08] 暴击伤害", "[09] 治疗"],
+        gr: [
+            {t:"[09] 绝世孤品", v:10}, {t:"[08] 神一品", v:9}, {t:"[07] 绝二品", v:8},
+            {t:"[06] 超三品", v:7}, {t:"[05] 极四品", v:6}, {t:"[04] 秘五品", v:5},
+            {t:"[03] 奇六品", v:4}, {t:"[02] 上七品", v:3}, {t:"[01] 中八品", v:2}, {t:"[00] 下九品", v:1}
+        ],
+        gear: {
+            w: { s:["暴击","暴击伤害","攻击"], l:"素剑_七指剑_紫虚剑_白虹剑_定岚剑_鱼肠剑_巨阙千钧剑_七星龙渊剑_---☆---湛卢剑_朴刀_宿铁刀_雁翎刀_凤翅刀_新亭侯刀_大夏龙雀刀_百岳_鸿鹄刀_---☆---斩龙铡_烧火棍_齐眉棍_水火五行棍_连珠飞棍_扫霞棍_嗔痴棍_赤梢疯魔棍_神影八卦棍_---☆---达摩棍".split("_") },
+            h: { s:["破体","御体","治疗"], l:"晶玉簪_珠玑冠_玉扉彩钿_流霜冠_幽芒烁_冰璃点翠_九华朱心簪_离人簪_---☆---空明冠_头陀铁箍_镔钢盔_宿卫兜_将军乌油兜_八宝虎头盔_金刚笠_铁卧龙_大鳌逆鳞兜_---☆---九头蛟_白木簪_鹤嘴乌纹簪_鱼龙冠_泼墨鸳鸯_红梅朱簪_百花蝴蝶簪_伏龙隐香簪_黄龙宝冠_---☆---昭辰宝束".split("_") },
+            b: { s:["自愈","减伤","血量"], l:"玉背心_嵌玉甲_琼琳衣_卷云黄甲_繁霜衣_蛟妾玉甲_彩缕玉衣_雪璃宝甲_---☆---素暝宝莲衣_元铜衣_大叶甲_寸金软衣_雁翎甲_赤金铠_黄龙掩心衣_虬伏胄_玄珠袍_---☆---金蚕宝甲_木札甲_烟波甲_七翎木甲_赤鸮衣_净邪木甲_朱雀五结衣_白巧玲珑甲_枯焕甲_---☆---玄黄木甲".split("_") },
+            a: { s:["破体","御体","吸血"], l:"玉裹手_半弧臂饰_冰晶手串_景云臂珰_莲华约腕_守静环_悟真环_净垢环_---☆---希夷环_黑铁护臂_环锁缠臂_柳叶护膊_精钢环臂_乌锤臂甲_卧霜护臂_螭虎臂甲_擎云锁雷_---☆---金蝉宝镯_木护腕_铁木护臂_虎符缠臂_象雕臂环_鬼首护膊_狮王臂甲_定意降魔环_五智佛光_---☆---圆觉环".split("_") }
+        }
+    };
+
+    const $ = i => document.getElementById(i);
+    const pad = n => n < 10 ? "0"+n : n;
+    const opt = (el,t,v) => el.add(new Option(t,v));
+    const toBits = (n, len) => {
+        let res = [];
+        for(let i = len - 1; i >= 0; i--) res.push((n >> i) & 1);
+        return res;
+    };
+
+    /* ================= 初始化逻辑 ================= */
+    window.onload = function() {
+        D.s.forEach((n,i)=> opt($('sect'), `[${pad(i)}] ${n}`, i));
+        $('sect').value = 5; 
+        
+        updRoles(); // Init Roles
+        
+        $('role').value = 8; 
+        updMerit(); // Init Merit value logic
+
+        D.lk.forEach((n,i)=> opt($('luck'), `[${pad(i)}] ${n}`, i));
+        $('luck').value = 9;
+        
+        D.tm.forEach((n,i)=> opt($('tm'), n, i)); $('tm').value=8;
+        D.ts.forEach((n,i)=> opt($('ts'), n, i)); $('ts').value=9;
+
+        // Init Gear Ranks
+        document.querySelectorAll('.g-sel').forEach(el => {
+            el.innerHTML = ""; D.gr.forEach(g=> opt(el, g.t, g.v)); el.value = 10;
+        });
+        $('tg').value = 9;
+
+        // Init Gear Names
+        ['w','h','b','a'].forEach(k => {
+            let el=$('g'+k), d=D.gear[k];
+            d.l.forEach((nm, i) => {
+                let suf = d.s[Math.floor(i/9)];
+                opt(el, `[${pad(i+1)}] ${nm} (${suf})`, i+1);
+            });
+            el.value = el.options.length;
+        });
+
+        updLv();
+
+        // 绑定所有事件为实时生成
+        document.querySelectorAll('input, select').forEach(el => {
+            // 对于特殊逻辑的input，绑定专门的updater
+            if(el.id === 'sect') el.addEventListener('change', () => { updRoles(); gen(); });
+            else if(el.id === 'role') el.addEventListener('change', () => { updMerit(); gen(); });
+            else if(el.id === 'tier') el.addEventListener('input', () => { updLv(); gen(); });
+            else el.addEventListener('input', gen);
+        });
+
+        gen(); // First calculation
+    };
+
+    function updRoles() {
+        let s=$('sect').value, r=$('role'); r.innerHTML="";
+        D.r[s].forEach((n,i) => opt(r, `[${pad(i)}] ${n}`, i));
+        $('merit').value = 0; // 修改点：切换门派时重置功勋为0
+    }
+
+    function updMerit() {
+        let r=$('role'), m=$('merit');
+        let idx = r.selectedIndex;
+        if(idx == r.options.length-1) {
+            m.value = 10000;
+        } else {
+            m.value = idx * 100;
+        }
+    }
+
+    function updLv() {
+        let t = parseInt($('tier').value)||0;
+        $('lv').value = 30 + t*30;
+    }
+
+    function get_map(seed) {
+        if(seed<1) seed=1;
+        let arr = MAP.map((c, i) => {
+            let p = Math.pow(i+2, 5); 
+            F32_VAL[0] = p; // Float32 truncation
+            return { c:c, k: F32_VAL[0] % seed, i:i };
+        });
+        arr.sort((a,b) => (a.k!=b.k) ? a.k-b.k : a.i-b.i);
+        return arr.map(x=>x.c);
+    }
+
+    /* ================= 核心生成与显示逻辑 ================= */
+    function gen() {
+        const outDiv = $('output');
+        let pid = $('pid').value.trim();
+        
+        if(!pid) {
+            outDiv.innerText = "WAITING FOR ID";
+            outDiv.style.color = "var(--danger)";
+            return;
+        } else {
+            outDiv.style.color = "var(--accent)";
+        }
+
+        try {
+            let V = [];
+            // Role & Sect
+            let roleVal = parseInt($('role').value) + 1;
+            V.push( roleVal * 10 + parseInt($('sect').value) );
+            
+            // Tier offset
+            V.push( parseInt($('tier').value)+32 );
+            
+            // Gears
+            ['w','h','b','a'].forEach(k => {
+                let i=parseInt($('g'+k).value)-1, gr=parseInt($('gr'+k).value);
+                let t=Math.floor(i/9), s=(i%9)+1, b=t*10+s;
+                let val = (gr>=7) ? (gr-7)*30+b+8 : 0;
+                V.push(Math.max(0, Math.min(127, val)));
+            });
+
+            // Config Bits
+            V.push($('ck_bk').checked?42:12);
+            V.push($('ck_sk').checked?21:12);
+            V.push( Math.min(112, Math.floor($('money').value/35000)+12) );
+            V.push( Math.min(112, Math.floor($('exp').value/1000)+12) );
+            
+            // Merit Logic
+            let mv = parseInt($('merit').value);
+            let mv_code = 12;
+            if(mv > 10000) mv = 10000; 
+            if(mv >= 10000) mv_code = 112;
+            else mv_code = Math.floor(mv/100)+12;
+            V.push(mv_code);
+
+            // Treasures & Cycle
+            V.push( (parseInt($('tm').value)+1)*10 + parseInt($('ts').value)+12 );
+            V.push( parseInt($('te').value)+12 );
+            V.push( parseInt($('cycle').value)*10 + parseInt($('tg').value)+12 );
+            V.push( parseInt($('luck').value)+12 );
+
+            // Calc Bits
+            let bits=[]; V.forEach(n => bits.push(...toBits(n, 7)));
+            let key = parseInt($('key').value), len = Math.max(1, pid.length);
+            let seed = key * len, pMap = get_map(seed);
+            
+            // Gen b51 (21 chars)
+            let b51_str = "";
+            let s2=0;
+            for(let i=0; i<21; i++) {
+                let n = parseInt(bits.slice(i*5, i*5+5).join(''), 2);
+                b51_str += (pMap[n] || MAP[0]); 
+                s2 += (n % 10);
+            }
+            
+            // Gen b47 (6 chars)
+            let s3 = (len+(s2%10)) * (/[A-Za-z]/.test(pid)?2:3);
+            let cb=[]; [seed,s2,s3,0].forEach(n=>cb.push(...toBits(n, 8)));
+            let b47_str = "";
+            for(let i=0; i<6; i++) {
+                let idx = parseInt(cb.slice(i*4,i*4+4).join(''), 2);
+                b47_str += (MAP[idx] || MAP[0]);
+            }
+
+            // Combine to 27 chars: XXXXXXXXXXXXXXXXXXXXX + XXXXXX
+            let fullStr = b51_str + b47_str;
+            
+            // Format 9-9-9
+            let fmt = `${fullStr.substring(0,9)}-${fullStr.substring(9,18)}-${fullStr.substring(18)}`;
+            outDiv.innerText = fmt;
+
+        } catch(e) { 
+            console.error(e);
+            outDiv.innerText = "ERROR";
+            outDiv.style.color = "var(--danger)";
+        }
+    }
+
+    function copyCode() {
+        const text = document.getElementById('output').textContent;
+        if(text.includes("WAITING") || text.includes("ERROR")) return;
+
+        navigator.clipboard.writeText(text).then(() => {
+            const msg = document.getElementById('msg');
+            msg.textContent = "✓ 存档码已复制到剪贴板";
+            setTimeout(() => msg.textContent = "", 2000);
+        });
+    }
+</script>
+</body>
+</html>
