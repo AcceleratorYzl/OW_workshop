@@ -26,32 +26,32 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            padding: 40px 10px;
+            padding: 20px 10px; /* 减小整体页面上下内边距 */
         }
 
-        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 24px; }
+        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 12px; /* 减小模块之间的间距 */ }
 
         /* ===== 新增头部区域样式 Start ===== */
         .main-header {
             text-align: center;
-            padding-bottom: 25px;
-            margin-bottom: 10px;
+            padding-bottom: 10px; /* 减小头部下内边距 */
+            margin-bottom: 5px; /* 减小头部下外边距 */
             border-bottom: 1px solid rgba(102, 252, 241, 0.2); /* 分割线 */
         }
 
         .main-title {
-            font-size: 2.8rem;
+            font-size: 2.2rem; /* 小幅缩小标题字体 */
             font-weight: 800;
             color: var(--accent);
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 10px;
+            margin-bottom: 5px; /* 减小标题下间距 */
             /* 霓虹发光效果 */
             text-shadow: 0 0 15px rgba(102, 252, 241, 0.6), 0 0 30px rgba(102, 252, 241, 0.2);
         }
 
         .main-subtitle {
-            font-size: 0.95rem;
+            font-size: 0.85rem; /* 小幅缩小副标题字体 */
             color: var(--text-muted);
             letter-spacing: 1px;
             opacity: 0.8;
@@ -64,7 +64,7 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-radius: 4px;
-            padding: 32px;
+            padding: 16px; /* 大幅减小面板内边距（原32px） */
             border-left: 1px solid rgba(102, 252, 241, 0.2);
             border-top: 1px solid rgba(102, 252, 241, 0.1);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -72,10 +72,10 @@
         }
 
         h2 {
-            font-size: 1.1rem;
+            font-size: 1rem; /* 小幅缩小面板标题字体 */
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 30px;
+            margin-bottom: 15px; /* 减小标题下间距（原30px） */
             display: flex;
             align-items: center;
             color: var(--gold);
@@ -85,15 +85,15 @@
         h2::before {
             content: '';
             width: 4px;
-            height: 1.1rem;
+            height: 1rem;
             background: var(--accent);
             margin-right: 12px;
             box-shadow: 0 0 8px var(--accent);
         }
 
         /* Layout Grids */
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; /* 减小网格间距（原24px） */ }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; /* 减小网格间距（原24px） */ }
         @media (max-width: 768px) { .grid-4, .grid-2 { grid-template-columns: 1fr; } }
 
         /* Input Group Standard */
@@ -102,7 +102,7 @@
         .field-group label {
             font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px; /* 减小标签下间距（原8px） */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -128,7 +128,7 @@
         input, select {
             background: var(--input-bg);
             border: 1px solid #2c3e50;
-            padding: 12px;
+            padding: 10px; /* 减小输入框内边距（原12px） */
             color: var(--accent);
             font-size: 1rem;
             font-family: 'Consolas', monospace;
@@ -145,13 +145,13 @@
 
         input:disabled { opacity: 0.5; border-color: #333; cursor: not-allowed; }
 
-        .hint { margin-top: 6px; font-size: 0.75rem; color: #555; }
+        .hint { margin-top: 4px; /* 减小提示文字上间距（原6px） */ font-size: 0.75rem; color: #555; }
 
         /* Checkbox Style */
         .checkbox-container {
             display: flex;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px; /* 减小复选框下间距（原25px） */
             cursor: pointer;
             user-select: none;
         }
@@ -172,14 +172,14 @@
         .output-box {
             background: rgba(0,0,0,0.6);
             border: 1px dashed var(--border);
-            padding: 24px;
+            padding: 16px; /* 减小输出框内边距（原24px） */
             text-align: center;
-            font-size: 1.8rem;
+            font-size: 1.5rem; /* 小幅缩小输出文字 */
             font-family: 'Consolas', monospace;
             color: var(--accent);
             letter-spacing: 3px;
             text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* 减小输出框下间距（原20px） */
             word-break: break-all;
         }
 
@@ -188,7 +188,7 @@
             color: var(--bg-color);
             border: none;
             width: 100%;
-            padding: 16px;
+            padding: 12px; /* 减小按钮内边距（原16px） */
             font-weight: 700;
             text-transform: uppercase;
             cursor: pointer;
@@ -199,6 +199,12 @@
 
         .btn:hover { background: #fff; box-shadow: 0 0 20px rgba(102, 252, 241, 0.6); }
 
+        /* 分割线间距减小 */
+        hr {
+            border: 0; 
+            border-top: 1px solid rgba(102, 252, 241, 0.2); 
+            margin: 15px 0; /* 原30px */
+        }
     </style>
 </head>
 <body>
@@ -209,7 +215,7 @@
     <header class="main-header">
         <h1 class="main-title">RPG 存档生成器</h1>
         <!-- 此处副标题我写成了匹配此源码游戏内容的名称，如果不喜欢可自行修改为"里阿尔托..." -->
-        <div class="main-subtitle">艾兴瓦尔德 · 创世 RPG (AX) </div>
+        <div class="main-subtitle">艾兴瓦尔德 · 修仙 RPG (AX) </div>
     </header>
 
     <!-- 属性计算模块 -->
@@ -228,7 +234,7 @@
             <!-- 等级输入 (默认 8000) -->
             <div class="field-group">
                 <label>等级 (LEVEL) <span class="raw-display" id="disp-lvl">Lv.0</span></label>
-                <input type="number" id="in-lvl" value="8000" placeholder="1-8000">
+                <input type="number" id="in-lvl" value="8000" placeholder="0-8000">
                 <div class="hint">成长软上限300级，数值可至8000</div>
             </div>
             
@@ -237,7 +243,7 @@
             <div class="field-group" style="opacity:0; pointer-events:none;"></div>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid rgba(102, 252, 241, 0.2); margin: 30px 0;">
+        <hr>
         <h2>加成模块 (Boost Module) // <span style="color:var(--text-muted); font-size:0.8em; margin-left:10px;">BONUS</span></h2>
 
         <!-- 第二行：核心加成 (下拉框) -->
@@ -313,6 +319,11 @@
 </div>
 
 <script>
+    // 页面加载后自动滚动到最底部
+    window.onload = function() {
+        window.scrollTo(0, document.body.scrollHeight);
+    };
+
     // 常量定义
     const C = {
         KEY: 5369,
@@ -359,7 +370,7 @@
 
     // 主逻辑：UI更新与计算
     function calc() {
-        const lvl = parseInt(els.lvl.value) || 1;
+        const lvl = els.lvl.value === "" ? 0 : parseInt(els.lvl.value);
         const titleVal = parseInt(els.title.value);
         const wingVal = parseInt(els.wing.value);
         const isAuto = els.auto.checked;
