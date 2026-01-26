@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OW RPG 存档生成器</title>
+    <title>OW_LA 存档生成器</title>
     <style>
         :root {
             --bg-color: #0b0c10;
             --panel-bg: rgba(31, 40, 51, 0.9);
             --input-bg: #121418;
-            --accent: #66fcf1; /* 科技青 */
+            --accent: #66fcf1;
             --text-main: #e0e0e0;
             --text-muted: #888;
             --border: #45a29e;
-            --danger: #ff4d4d; /* 警告红 */
+            --danger: #ff4d4d;
             --gold: #ffd700;
         }
 
@@ -59,7 +59,7 @@
             margin-top: 5px;
         }
 
-        /* 卡片通用样式 */
+        /* 卡片通用 */
         .panel {
             background: var(--panel-bg);
             border: 1px solid rgba(69, 162, 158, 0.2);
@@ -74,9 +74,17 @@
             transform: translateY(-2px);
         }
 
-        /* 标题样式 */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 10px;
+        }
+
         h2 {
-            margin: 0 0 20px 0;
+            margin: 0;
             font-size: 1.1rem;
             color: var(--gold);
             display: flex;
@@ -86,33 +94,16 @@
             padding-left: 10px;
         }
 
-        /* 网格布局 */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
+        /* 布局 */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
 
-        .grid-4 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .grid-2 { grid-template-columns: 1fr; }
-        }
-
-        /* 输入框容器 */
-        .field-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Label 布局 */
+        .field-group { display: flex; flex-direction: column; }
+        
         label {
             display: flex;
-            justify-content: space-between; /* 名字在左，Raw在右 */
+            justify-content: space-between; 
             align-items: center;
             font-size: 0.9rem;
             font-weight: 600;
@@ -120,21 +111,9 @@
             margin-bottom: 6px;
         }
 
-        /* Raw 值样式 */
-        .raw-display {
-            font-family: 'Consolas', monospace;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            opacity: 0.8;
-        }
+        .raw-display { font-family: 'Consolas', monospace; font-size: 0.8rem; color: var(--text-muted); opacity: 0.8; }
+        .raw-display.danger { color: var(--danger); opacity: 1; font-weight: bold; }
 
-        .raw-display.danger {
-            color: var(--danger);
-            opacity: 1;
-            font-weight: bold;
-        }
-
-        /* 输入框样式 */
         input, select {
             background: var(--input-bg);
             border: 1px solid #333;
@@ -143,76 +122,78 @@
             border-radius: 6px;
             font-size: 1rem;
             outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
             width: 100%;
             box-sizing: border-box;
+            transition: 0.3s;
         }
 
-        input:focus, select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 8px rgba(102, 252, 241, 0.15);
-        }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(102, 252, 241, 0.15); }
+        input:disabled { background: #1a1a1a; color: #555; border-color: #222; cursor: not-allowed; }
 
-        /* 占位符颜色 */
-        ::placeholder {
-            color: #444;
-            font-style: italic;
-        }
+        ::placeholder { color: #444; font-style: italic; }
+        .hint { font-size: 0.75rem; color: #666; margin-top: 5px; text-align: right; }
 
-        /* 底部建议提示文字 */
-        .hint {
-            font-size: 0.75rem;
-            color: #666;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        /* 结果区域 */
-        .output-section {
-            background: #000;
+        .output-box {
+            background: rgba(0,0,0,0.6);
             border: 1px dashed var(--border);
-            padding: 20px;
+            padding: 12px 16px;
             text-align: center;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-
-        .code-display {
+            font-size: 1.5rem;
             font-family: 'Consolas', monospace;
-            font-size: 2rem;
             color: var(--accent);
-            margin: 15px 0;
             letter-spacing: 3px;
-            font-weight: bold;
-            text-shadow: 0 0 15px rgba(102, 252, 241, 0.3);
+            text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+            margin: 8px 0 15px 0;
             word-break: break-all;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
+        .output-box.loading { color: #888; font-size: 1.2rem; text-shadow: none; font-style: italic; letter-spacing: 0; }
+        .output-box.error { color: var(--danger); font-size: 1rem; text-shadow: none; letter-spacing: 0; }
 
         .btn {
-            background: transparent;
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            padding: 10px 40px;
-            font-size: 1rem;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn:hover {
             background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 15px var(--accent);
+            color: var(--bg-color);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
+        
+        .btn:hover { background: #fff; box-shadow: 0 0 20px rgba(102, 252, 241, 0.6); }
+        .btn:disabled { background: #333; color: #777; cursor: not-allowed; box-shadow: none; }
 
-        .copy-msg {
-            height: 20px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: var(--gold);
+        #api-url { display: none; }
+        
+        .integrated-api { 
+            font-size: 0.75rem; 
+            color: #555; 
+            background: rgba(0,0,0,0.3); 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            display: inline-block; 
+            margin-top: 15px; 
+            border: 1px solid #222; 
+            text-align:right; 
+            float:right;
         }
+        
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 22px; border: 1px solid #555; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(102, 252, 241, 0.4); }
+        input:checked + .slider:before { transform: translateX(22px); background-color: #0b0c10; }
 
+        .copy-msg { height: 20px; margin-top: 10px; font-size: 0.9rem; color: var(--gold); }
     </style>
 </head>
 <body>
@@ -223,201 +204,114 @@
         <div class="subtitle">里阿尔托 · 逆天修仙传重制版</div>
     </header>
 
-    <!-- 基础属性模块 -->
     <div class="panel">
         <h2>基础属性 (Base Stats)</h2>
         <div class="grid-4">
-            <!-- 等级 -->
             <div class="field-group">
-                <label>
-                    角色等级
-                    <span id="txt-level" class="raw-display">(Raw: 8000)</span>
-                </label>
-                <input type="number" id="level" value="8000" min="1" max="9999" placeholder="1-9999">
-                <div class="hint">建议 8000</div>
+                <label>角色等级 <span id="txt-level" class="raw-display">(Raw: 2000)</span></label>
+                <input type="number" id="level" value="2000" min="200" max="2000" placeholder="200-2000" onblur="if(this.value<200)this.value=200;if(this.value>2000)this.value=2000;updateRawPreview();">
+                <div class="hint">范围 200-2000</div>
             </div>
-
-            <!-- 装备品阶 -->
             <div class="field-group">
-                <label>
-                    装备品阶
-                    <span id="txt-attr" class="raw-display">(Raw: --)</span>
-                </label>
-                <input type="number" id="attr_avg" value="9" min="0" max="9" placeholder="0-9">
-                <div class="hint">极限值 9 (超过数据溢出至门派)</div>
+                <label>装备品阶 <span id="txt-attr" class="raw-display">(Raw: --)</span></label>
+                <input type="number" id="attr_avg" value="9" min="0" max="9" placeholder="0-9" onblur="if(this.value<0)this.value=0;if(this.value>9)this.value=9;updateRawPreview();">
+                <div class="hint">范围 0-9</div>
             </div>
-
-            <!-- 体质 -->
             <div class="field-group">
-                <label>
-                    体质等级
-                    <span id="txt-body" class="raw-display">(Raw: --)</span>
-                </label>
-                <input type="number" id="body_lvl" value="20" min="0" max="99" placeholder="0-99">
-                <div class="hint">极限 0-99 (超过数据溢出至装备品阶)</div>
+                <label>体质等级 <span id="txt-body" class="raw-display">(Raw: --)</span></label>
+                <input type="number" id="body_lvl" value="20" min="0" max="20" placeholder="0-20" onblur="if(this.value<0)this.value=0;if(this.value>20)this.value=20;updateRawPreview();">
+                <div class="hint">范围 0-20</div>
             </div>
-
-            <!-- 技能 -->
             <div class="field-group">
-                <label>
-                    经书掩码
-                    <span id="txt-skill" class="raw-display">(Raw: --)</span>
-                </label>
+                <label>经书掩码 <span id="txt-skill" class="raw-display">(Raw: --)</span></label>
                 <input type="number" id="cultivation" value="7077" min="0" max="9000" placeholder="0-9077">
-                <div class="hint">建议 7077 (全满)</div>
+                <div class="hint">建议 7077</div>
             </div>
         </div>
     </div>
 
-    <!-- 门派与职位 (对称) -->
     <div class="panel">
         <h2>门派与职位 (Faction & Rank)</h2>
         <div class="grid-2">
-            <!-- 门派 -->
             <div class="field-group">
-                <label>
-                    门派归属
-                    <span id="txt-faction" class="raw-display">(Raw: 4920)</span>
-                </label>
+                <label>门派归属 <span id="txt-faction" class="raw-display">(Raw: 4920)</span></label>
                 <select id="faction" onchange="updateRankOptions()">
                     <option value="1000">少林派 (减伤)</option>
                     <option value="2000">武当派 (吸血)</option>
                     <option value="3000">百花谷 (回血)</option>
                     <option value="4000">狮相门 (暴击)</option>
                 </select>
-                <div class="hint">Raw包含品阶与体质</div>
             </div>
-
-            <!-- 职位 -->
             <div class="field-group">
-                <label>
-                    门派职位
-                    <span id="txt-rank" class="raw-display">(Raw: 7977)</span>
-                </label>
+                <label>门派职位 <span id="txt-rank" class="raw-display">(Raw: 7977)</span></label>
                 <select id="rank_select">
-                    <!-- JS动态生成 -->
-                </select>
-                <div class="hint">Raw包含经书修练</div>
+                    </select>
             </div>
         </div>
     </div>
 
-    <!-- 绝世神兵 (对称) -->
     <div class="panel">
         <div class="grid-2">
-            <!-- 项链 -->
             <div class="field-group">
-                <h2>项链 (Necklace)</h2>
+                <div class="header-row">
+                    <h2>项链 (Necklace)</h2>
+                    <label class="switch"><input type="checkbox" id="toggle-neck" checked onchange="toggleGear('neck')"><span class="slider"></span></label>
+                </div>
                 <div style="display:flex; flex-direction:column; gap:15px;">
-                    <!-- 项链强化 -->
                     <div>
-                        <label>
-                            强化等级
-                            <span id="txt-neck-enc" class="raw-display">(Raw: --)</span>
-                        </label>
-                        <input type="number" id="n_enc" value="20" min="0" max="99" placeholder="0-99">
-                        <div class="hint">极限 0-99 (基础伤害)</div>
+                        <label>强化 <span id="txt-neck-enc" class="raw-display"></span></label>
+                        <input type="number" id="n_enc" value="20" min="0" max="20" onblur="if(this.value<0)this.value=0;if(this.value>20)this.value=20;updateRawPreview();">
+                        <div class="hint">0-20</div>
                     </div>
-                    <!-- 项链精制 -->
                     <div>
-                        <label>
-                            精制等级
-                            <span id="txt-neck-ref" class="raw-display">(Raw: --)</span>
-                        </label>
-                        <input type="number" id="n_ref" value="10" min="0" max="99" placeholder="0-99">
-                        <div class="hint">极限 0-99 (吸血/减伤)</div>
+                        <label>精制 <span id="txt-neck-ref" class="raw-display"></span></label>
+                        <input type="number" id="n_ref" value="10" min="0" max="10" onblur="if(this.value<0)this.value=0;if(this.value>10)this.value=10;updateRawPreview();">
+                        <div class="hint">0-10</div>
                     </div>
                 </div>
             </div>
-
-            <!-- 戒指 -->
             <div class="field-group">
-                <h2>戒指 (Ring)</h2>
+                <div class="header-row">
+                    <h2>戒指 (Ring)</h2>
+                    <label class="switch"><input type="checkbox" id="toggle-ring" checked onchange="toggleGear('ring')"><span class="slider"></span></label>
+                </div>
                 <div style="display:flex; flex-direction:column; gap:15px;">
-                    <!-- 戒指强化 -->
                     <div>
-                        <label>
-                            强化等级
-                            <span id="txt-ring-enc" class="raw-display">(Raw: --)</span>
-                        </label>
-                        <input type="number" id="r_enc" value="20" min="0" max="99" placeholder="0-99">
-                        <div class="hint">极限 0-99 (基础伤害)</div>
+                        <label>强化 <span id="txt-ring-enc" class="raw-display"></span></label>
+                        <input type="number" id="r_enc" value="20" min="0" max="20" onblur="if(this.value<0)this.value=0;if(this.value>20)this.value=20;updateRawPreview();">
+                        <div class="hint">0-20</div>
                     </div>
-                    <!-- 戒指精制 -->
                     <div>
-                        <label>
-                            精制等级
-                            <span id="txt-ring-ref" class="raw-display">(Raw: --)</span>
-                        </label>
-                        <input type="number" id="r_ref" value="10" min="0" max="99" placeholder="0-99">
-                        <div class="hint">极限 0-99 (暴击/爆伤)</div>
+                        <label>精制 <span id="txt-ring-ref" class="raw-display"></span></label>
+                        <input type="number" id="r_ref" value="10" min="0" max="10" onblur="if(this.value<0)this.value=0;if(this.value>10)this.value=10;updateRawPreview();">
+                        <div class="hint">0-10</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 输出 -->
-    <div class="output-section">
-        <div style="color:var(--text-muted); font-size:0.9rem;">生成的存档码</div>
-        <div class="code-display" id="output">---- ---- ---- ---- ---- ----</div>
-        <button class="btn" onclick="copyCode()">复制存档码</button>
+    <div class="panel">
+        <h2>生成结果 (Generate) // <span style="color:var(--text-muted); font-size:0.8em; margin-left:10px;">OUTPUT</span></h2>
+        <div class="output-box" id="output">等待指令 (WAITING)</div>
+        <button class="btn" id="btn-main" onclick="handleGenerate()">开始计算生成</button>
         <div class="copy-msg" id="msg"></div>
+        
+        <input type="hidden" id="api-url" value="https://larissa-teeny-radiologically.ngrok-free.dev">
+        <div style="clear:both;"></div>
+        <div class="integrated-api">● Connected: larissa-teeny...dev</div>
     </div>
 
 </div>
 
 <script>
-    // 职位数据
     const rankData = {
         "1000": [ {v:100,n:"比丘"}, {v:200,n:"罗汉堂弟子"}, {v:300,n:"般若堂弟子"}, {v:400,n:"菩提院弟子"}, {v:500,n:"持戒僧"}, {v:600,n:"十八罗汉"}, {v:700,n:"长老"}, {v:800,n:"首座"}, {v:900,n:"方丈"} ],
         "2000": [ {v:100,n:"外门弟子"}, {v:200,n:"接引道人"}, {v:300,n:"太和宫弟子"}, {v:400,n:"紫霄宫弟子"}, {v:500,n:"真武殿弟子"}, {v:600,n:"真传弟子"}, {v:700,n:"掌门弟子"}, {v:800,n:"代掌门"}, {v:900,n:"掌门"} ],
         "3000": [ {v:100,n:"牧鹿童"}, {v:200,n:"花匣弟子"}, {v:300,n:"金匣弟子"}, {v:400,n:"玉匣弟子"}, {v:500,n:"朱匣弟子"}, {v:600,n:"妙手"}, {v:700,n:"鹿裳使"}, {v:800,n:"掌匣人"}, {v:900,n:"谷主"} ],
-        "4000": [ {v:100,n:"狮崽子"}, {v:200,n:"睡狮堂弟子"}, {v:300,n:"锦狮堂弟子"}, {v:400,n:"狂狮堂弟子"}, {v:500,n:"睡狮堂主"}, {v:600,n:"锦狮堂主"}, {v:700,n:"狂狮堂主"}, {v:800,n:"副门主"}, {v:900,n:"门主"} ]
+        "4000": [ {v:100,n:"狮崽崽子"}, {v:200,n:"睡狮堂弟子"}, {v:300,n:"锦狮堂弟子"}, {v:400,n:"狂狮堂弟子"}, {v:500,n:"睡狮堂主"}, {v:600,n:"锦狮堂主"}, {v:700,n:"狂狮堂主"}, {v:800,n:"副门主"}, {v:900,n:"门主"} ]
     };
 
-    // 核心算法
-    const XOR_KEY = 2541;
-    const SUB_MAP = [0, 4, 7, 1, 6, 3, 5, 2, 9, 8];
-
-    function encrypt(val) {
-        val = Math.floor(val);
-        let b61 = val ^ XOR_KEY;
-        let temp = b61;
-        let digitSum = 0;
-        for (let i = 0; i < 4; i++) {
-            digitSum += temp % 10;
-            temp = Math.floor(temp / 10);
-        }
-        let pivot = digitSum % 4;
-        let s = b61.toString().padStart(4, '0');
-        if (s.length > 4) s = s.slice(-4);
-        let rotated = pivot > 0 ? s.slice(-pivot) + s.slice(0, 4 - pivot) : s;
-        let final = "";
-        for (let char of rotated) final += SUB_MAP[parseInt(char)];
-        return final;
-    }
-
-    function getChecksum(inputs) {
-        let acc = 0;
-        inputs.forEach((val, i) => {
-            let capped = val > 8000 ? 8000 : val;
-            acc += (capped + i);
-        });
-        if (acc > 875) {
-            let cur = acc;
-            let b64_int = 0;
-            if (cur > 768) {
-                let count = Math.ceil((cur - 768) / 740); 
-                b64_int = count * 27;
-                cur = cur - (count * 740);
-            }
-            return Math.floor(cur + b64_int);
-        }
-        return Math.floor(acc / 5.017) + 4756;
-    }
-
-    // UI 更新
     function updateRankOptions() {
         const faction = document.getElementById('faction').value;
         const rankSelect = document.getElementById('rank_select');
@@ -430,85 +324,135 @@
             rankSelect.appendChild(opt);
         });
         rankSelect.value = "900"; 
-        updateCalc();
+        updateRawPreview(); 
     }
 
-    // 更新单个 Raw 显示
     function setRawText(id, val) {
         const el = document.getElementById(id);
         el.textContent = `(Raw: ${val})`;
-        if (val > 9999) {
-            el.classList.add('danger');
-        } else {
-            el.classList.remove('danger');
-        }
+        if (val > 9999) el.classList.add('danger');
+        else el.classList.remove('danger');
     }
 
-    function updateCalc() {
-        // 读取输入
+    function toggleGear(type) {
+        const isChecked = document.getElementById(`toggle-${type}`).checked;
+        const inputs = [document.getElementById(`${type === 'neck' ? 'n' : 'r'}_enc`), 
+                        document.getElementById(`${type === 'neck' ? 'n' : 'r'}_ref`)];
+        
+        inputs.forEach(input => {
+            if (isChecked) {
+                input.disabled = false;
+                if (parseInt(input.value) === 0) input.value = input.id.includes('enc') ? 20 : 10;
+            } else {
+                input.value = 0;
+                input.disabled = true;
+            }
+        });
+        updateRawPreview();
+    }
+
+    function updateRawPreview() {
+        // 获取值时保持基本校验，防止空值
         const lvl = parseInt(document.getElementById('level').value) || 0;
         const attrAvg = parseInt(document.getElementById('attr_avg').value) || 0;
         const bodyLvl = parseInt(document.getElementById('body_lvl').value) || 0;
         const cultVal = parseInt(document.getElementById('cultivation').value) || 0;
         const facBase = parseInt(document.getElementById('faction').value);
         const rankBase = parseInt(document.getElementById('rank_select').value) || 100;
-        
         const nEnc = parseInt(document.getElementById('n_enc').value) || 0;
         const nRef = parseInt(document.getElementById('n_ref').value) || 0;
         const rEnc = parseInt(document.getElementById('r_enc').value) || 0;
         const rRef = parseInt(document.getElementById('r_ref').value) || 0;
 
-        // 计算各模块 Raw
-        const rawFac = facBase + (attrAvg * 100) + bodyLvl; // Chunk 2
-        const rawRank = rankBase + cultVal;               // Chunk 3
-        const rawNeck = nEnc * 100 + nRef;                // Chunk 5
-        const rawRing = rEnc * 100 + rRef;                // Chunk 4
+        const rawFac = facBase + (attrAvg * 100) + bodyLvl;
+        const rawRank = rankBase + cultVal;
+        const rawNeck = nEnc * 100 + nRef;
+        const rawRing = rEnc * 100 + rRef;
 
-        // 更新界面 Raw 显示
-        // 1. 等级
         setRawText('txt-level', lvl);
-        
-        // 2. 门派相关 (Raw 实际上是组合值，这里为了严谨，
-        // 在门派、品阶、体质的标签上都显示 最终的组合Raw，因为它们共同决定是否溢出)
         setRawText('txt-faction', rawFac);
         setRawText('txt-attr', rawFac);
         setRawText('txt-body', rawFac);
-
-        // 3. 职位相关 (同理，显示组合Raw)
         setRawText('txt-rank', rawRank);
         setRawText('txt-skill', rawRank);
-
-        // 4. 项链相关 (显示组合Raw)
         setRawText('txt-neck-enc', rawNeck);
         setRawText('txt-neck-ref', rawNeck);
-
-        // 5. 戒指相关 (显示组合Raw)
         setRawText('txt-ring-enc', rawRing);
         setRawText('txt-ring-ref', rawRing);
-
-        // 校验位 & 加密
-        const rawSum = getChecksum([lvl, rawFac, rawRank, rawRing, rawNeck]);
-        const codes = [
-            encrypt(lvl),
-            encrypt(rawFac),
-            encrypt(rawRank),
-            encrypt(rawRing),
-            encrypt(rawNeck),
-            encrypt(rawSum)
-        ];
-
-        document.getElementById('output').textContent = codes.join('-');
+        
+        const outBox = document.getElementById('output');
+        const btn = document.getElementById('btn-main');
+        if (outBox.classList.contains('output-box') && outBox.textContent.trim() !== "等待指令 (WAITING)") {
+            outBox.textContent = "等待指令 (WAITING)";
+            outBox.className = "output-box";
+            btn.textContent = "开始计算生成";
+            btn.disabled = false;
+        }
     }
 
-    function copyCode() {
-        navigator.clipboard.writeText(document.getElementById('output').textContent).then(() => {
-            const msg = document.getElementById('msg');
-            msg.textContent = "✓ 存档码已复制到剪贴板";
-            setTimeout(() => msg.textContent = "", 2000);
-        });
+    async function handleGenerate() {
+        const outBox = document.getElementById('output');
+        const btn = document.getElementById('btn-main');
+        const apiUrl = document.getElementById('api-url').value.replace(/\/$/, "");
+        
+        if (outBox.textContent.trim() && !outBox.classList.contains('error') && outBox.textContent !== "等待指令 (WAITING)") {
+            navigator.clipboard.writeText(outBox.textContent).then(() => {
+                const msg = document.getElementById('msg');
+                msg.textContent = "✓ 存档码已复制到剪贴板";
+                setTimeout(() => msg.textContent = "", 2000);
+            });
+            return;
+        }
+
+        const payload = {
+            lvl: parseInt(document.getElementById('level').value) || 0,
+            attr_avg: parseInt(document.getElementById('attr_avg').value) || 0,
+            body_lvl: parseInt(document.getElementById('body_lvl').value) || 0,
+            cult_val: parseInt(document.getElementById('cultivation').value) || 0,
+            fac_base: parseInt(document.getElementById('faction').value),
+            rank_base: parseInt(document.getElementById('rank_select').value) || 100,
+            n_enc: parseInt(document.getElementById('n_enc').value) || 0,
+            n_ref: parseInt(document.getElementById('n_ref').value) || 0,
+            r_enc: parseInt(document.getElementById('r_enc').value) || 0,
+            r_ref: parseInt(document.getElementById('r_ref').value) || 0
+        };
+
+        btn.disabled = true;
+        btn.textContent = "连接计算卫星...";
+        outBox.className = "output-box loading";
+        outBox.textContent = "CALCULATING...";
+
+        try {
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), 12000); 
+
+            const response = await fetch(`${apiUrl}/api/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                outBox.className = "output-box";
+                outBox.textContent = data.code;
+                btn.textContent = "复制存档码";
+            } else {
+                throw new Error(data.error || "服务器计算失败");
+            }
+        } catch (e) {
+            outBox.className = "output-box error";
+            outBox.textContent = `Error: ${e.message}`;
+            if (e.name === 'AbortError') outBox.textContent = "连接超时: 请确认后端代码正在运行 (固定域名已配置)";
+            btn.textContent = "重试";
+        } finally {
+            btn.disabled = false;
+        }
     }
 
-    document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', updateCalc));
+    document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', updateRawPreview));
     updateRankOptions();
 </script>
 </body>
