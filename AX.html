@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OW RPG 存档生成器</title>
+    <title>OW_AX 存档生成器</title>
     <style>
         :root {
             --bg-color: #0b0c10;
@@ -26,45 +26,36 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            padding: 20px 10px; /* 减小整体页面上下内边距 */
+            padding: 20px 10px;
         }
 
-        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 12px; /* 减小模块之间的间距 */ }
+        .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 12px; }
 
-        /* ===== 新增头部区域样式 Start ===== */
         .main-header {
             text-align: center;
-            padding-bottom: 10px; /* 减小头部下内边距 */
-            margin-bottom: 5px; /* 减小头部下外边距 */
-            border-bottom: 1px solid rgba(102, 252, 241, 0.2); /* 分割线 */
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(102, 252, 241, 0.2);
         }
 
         .main-title {
-            font-size: 2.2rem; /* 小幅缩小标题字体 */
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--accent);
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 5px; /* 减小标题下间距 */
-            /* 霓虹发光效果 */
+            margin-bottom: 5px;
             text-shadow: 0 0 15px rgba(102, 252, 241, 0.6), 0 0 30px rgba(102, 252, 241, 0.2);
         }
 
-        .main-subtitle {
-            font-size: 0.85rem; /* 小幅缩小副标题字体 */
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-        /* ===== 新增头部区域样式 End ===== */
+        .main-subtitle { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; opacity: 0.8; }
 
-        /* Module Panel */
         .panel {
             background: var(--panel-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-radius: 4px;
-            padding: 16px; /* 大幅减小面板内边距（原32px） */
+            padding: 16px;
             border-left: 1px solid rgba(102, 252, 241, 0.2);
             border-top: 1px solid rgba(102, 252, 241, 0.1);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -72,37 +63,27 @@
         }
 
         h2 {
-            font-size: 1rem; /* 小幅缩小面板标题字体 */
+            font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 15px; /* 减小标题下间距（原30px） */
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             color: var(--gold);
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
+        h2::before { content: ''; width: 4px; height: 1rem; background: var(--accent); margin-right: 12px; box-shadow: 0 0 8px var(--accent); }
 
-        h2::before {
-            content: '';
-            width: 4px;
-            height: 1rem;
-            background: var(--accent);
-            margin-right: 12px;
-            box-shadow: 0 0 8px var(--accent);
-        }
-
-        /* Layout Grids */
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; /* 减小网格间距（原24px） */ }
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; /* 减小网格间距（原24px） */ }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media (max-width: 768px) { .grid-4, .grid-2 { grid-template-columns: 1fr; } }
 
-        /* Input Group Standard */
         .field-group { display: flex; flex-direction: column; position: relative; }
         
         .field-group label {
             font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 6px; /* 减小标签下间距（原8px） */
+            margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -119,16 +100,12 @@
             transition: all 0.3s;
         }
         
-        .raw-display.danger {
-            color: var(--bg-color);
-            background: var(--danger);
-            font-weight: bold;
-        }
+        .raw-display.danger { color: var(--bg-color); background: var(--danger); font-weight: bold; }
 
         input, select {
             background: var(--input-bg);
             border: 1px solid #2c3e50;
-            padding: 10px; /* 减小输入框内边距（原12px） */
+            padding: 10px;
             color: var(--accent);
             font-size: 1rem;
             font-family: 'Consolas', monospace;
@@ -137,58 +114,43 @@
             width: 100%;
         }
 
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(102, 252, 241, 0.1);
-        }
-
+        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 15px rgba(102, 252, 241, 0.1); }
         input:disabled { opacity: 0.5; border-color: #333; cursor: not-allowed; }
 
-        .hint { margin-top: 4px; /* 减小提示文字上间距（原6px） */ font-size: 0.75rem; color: #555; }
+        .hint { margin-top: 4px; font-size: 0.75rem; color: #555; }
 
-        /* Checkbox Style */
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px; /* 减小复选框下间距（原25px） */
-            cursor: pointer;
-            user-select: none;
-        }
-
+        .checkbox-container { display: flex; align-items: center; margin-bottom: 15px; cursor: default; }
         .checkbox-container input { display: none; }
-        .checkmark {
-            width: 18px;
-            height: 18px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            margin-right: 10px;
-            position: relative;
-        }
+        .checkmark { width: 18px; height: 18px; background: var(--input-bg); border: 1px solid var(--border); margin-right: 10px; position: relative; }
         .checkbox-container input:checked ~ .checkmark { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
         .checkbox-container span { font-size: 0.9rem; color: var(--text-main); }
 
-        /* Output Terminal */
         .output-box {
             background: rgba(0,0,0,0.6);
             border: 1px dashed var(--border);
-            padding: 16px; /* 减小输出框内边距（原24px） */
+            padding: 16px;
             text-align: center;
-            font-size: 1.5rem; /* 小幅缩小输出文字 */
+            font-size: 1.5rem;
             font-family: 'Consolas', monospace;
             color: var(--accent);
             letter-spacing: 3px;
             text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
-            margin-bottom: 15px; /* 减小输出框下间距（原20px） */
+            margin-bottom: 15px;
             word-break: break-all;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        .output-box.loading { color: #888; font-size: 1.2rem; text-shadow: none; font-style: italic; letter-spacing: 0; }
+        .output-box.error { color: var(--danger); font-size: 1rem; text-shadow: none; letter-spacing: 0; }
 
         .btn {
             background: var(--accent);
             color: var(--bg-color);
             border: none;
             width: 100%;
-            padding: 12px; /* 减小按钮内边距（原16px） */
+            padding: 12px;
             font-weight: 700;
             text-transform: uppercase;
             cursor: pointer;
@@ -196,59 +158,43 @@
             transition: 0.3s;
             clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
         }
-
         .btn:hover { background: #fff; box-shadow: 0 0 20px rgba(102, 252, 241, 0.6); }
+        .btn:disabled { background: #333; color: #777; cursor: not-allowed; box-shadow: none; }
 
-        /* 分割线间距减小 */
-        hr {
-            border: 0; 
-            border-top: 1px solid rgba(102, 252, 241, 0.2); 
-            margin: 15px 0; /* 原30px */
-        }
+        hr { border: 0; border-top: 1px solid rgba(102, 252, 241, 0.2); margin: 15px 0; }
+        
+        .integrated-api { font-size: 0.75rem; color: #555; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 15px; border: 1px solid #222; text-align:right; float:right;}
     </style>
 </head>
 <body>
 
 <div class="container">
-    
-    <!-- 新增的头部区域 -->
     <header class="main-header">
         <h1 class="main-title">RPG 存档生成器</h1>
-        <!-- 此处副标题我写成了匹配此源码游戏内容的名称，如果不喜欢可自行修改为"里阿尔托..." -->
-        <div class="main-subtitle">艾兴瓦尔德 · 修仙 RPG (AX) </div>
+        <div class="main-subtitle">艾兴瓦尔德 · 修仙 RPG (AX)</div>
     </header>
 
-    <!-- 属性计算模块 -->
     <div class="panel">
         <h2>系统设置 (System Configuration) // <span style="color:var(--text-muted); font-size:0.8em; margin-left:10px;">CORE_ATTR</span></h2>
 
-        <!-- 自动计算开关 (默认不勾选) -->
-        <label class="checkbox-container">
-            <input type="checkbox" id="autoMode">
+        <label class="checkbox-container" style="pointer-events: none;">
+            <input type="checkbox" id="autoMode" checked onclick="return false">
             <div class="checkmark"></div>
-            <span>激活自动模拟协议 (根据等级演算合法属性) (ACTIVATE AUTO-SIM)</span>
+            <span>激活自动模拟协议 (强制开启) (ACTIVATE AUTO-SIM)</span>
         </label>
 
-        <!-- 第一行：基础数值 -->
         <div class="grid-4">
-            <!-- 等级输入 (默认 8000) -->
             <div class="field-group">
                 <label>等级 (LEVEL) <span class="raw-display" id="disp-lvl">Lv.0</span></label>
-                <input type="number" id="in-lvl" value="8000" placeholder="0-8000">
-                <div class="hint">成长软上限300级，数值可至8000</div>
+                <input type="number" id="in-lvl" value="200" min="200" max="2000" onblur="if(this.value<200)this.value=200;if(this.value>2000)this.value=2000;calc();">
+                <div class="hint">输入范围：200 - 2000</div>
             </div>
-            
-            <div class="field-group" style="opacity:0; pointer-events:none;"></div>
-            <div class="field-group" style="opacity:0; pointer-events:none;"></div>
-            <div class="field-group" style="opacity:0; pointer-events:none;"></div>
         </div>
 
         <hr>
         <h2>加成模块 (Boost Module) // <span style="color:var(--text-muted); font-size:0.8em; margin-left:10px;">BONUS</span></h2>
 
-        <!-- 第二行：核心加成 (下拉框) -->
         <div class="grid-2">
-            <!-- 称号 -->
             <div class="field-group">
                 <label>称号等级 (TITLE RANK) <span class="raw-display" id="disp-title">Val:0</span></label>
                 <select id="sel-title">
@@ -258,81 +204,56 @@
                     <option value="4">明日之星 (Lv.4)</option>
                     <option value="5">武林高手 (Lv.5)</option>
                     <option value="6">绝世奇才 (Lv.6)</option>
-                    <option value="7">勇冠三军 (Lv.7)</option>
-                    <option value="8" selected>威震天下 (Lv.8 | 属性+2万)</option>
+                    <option value="7" selected>勇冠三军 (Lv.7)</option>
                 </select>
-                <div class="hint">Lv.8 将激活混元一气功</div>
             </div>
 
-            <!-- 金丹 -->
             <div class="field-group">
                 <label>金丹等级 (WING RANK) <span class="raw-display" id="disp-wing">Val:0</span></label>
                 <select id="sel-wing">
-                    <option value="1">七品金丹 (No Effect)</option>
-                    <option value="2">六品金丹 (Speed +)</option>
-                    <option value="3">五品金丹 (Speed ++)</option>
-                    <option value="4">四品金丹 (Debuff Aura)</option>
-                    <option value="5">三品金丹 (Gravity)</option>
-                    <option value="6">二品金丹 (Buffs)</option>
-                    <option value="7" selected>一品金丹 (Max Rank)</option>
+                    <option value="1">七品金丹</option>
+                    <option value="2">六品金丹</option>
+                    <option value="3">五品金丹</option>
+                    <option value="4">四品金丹</option>
+                    <option value="5">三品金丹</option>
+                    <option value="6">二品金丹</option>
+                    <option value="7" selected>一品金丹</option>
                 </select>
-                <div class="hint">控制移速与光环特效</div>
             </div>
         </div>
     </div>
 
-    <!-- 装备数据模块 -->
     <div class="panel">
         <h2>装备数据 (Equip Matrices) // <span style="color:var(--text-muted); font-size:0.8em; margin-left:10px;">DMG_HP</span></h2>
         
         <div class="grid-2">
-            <!-- 装备伤害 (默认 24000) -->
             <div class="field-group">
-                <label>
-                    装备伤害 (EQUIP DAMAGE / CZDJ-1)
-                    <!-- 右上角 HUD -->
-                    <span id="hud-dps" class="raw-display">Init...</span>
-                </label>
-                <input type="number" id="in-dmg" placeholder="0-24000" value="24000">
-                <div class="hint">输入Raw，计算含被动与基础值</div>
+                <label>装备伤害 (EQUIP DAMAGE) <span id="hud-dps" class="raw-display">Init...</span></label>
+                <input type="number" id="in-dmg" placeholder="0-24000" disabled>
+                <div class="hint">只读：由等级演算生成的 Raw 数值</div>
             </div>
 
-            <!-- 装备血量 (默认 24000) -->
             <div class="field-group">
-                <label>
-                    装备血量 (EQUIP HEALTH / CZDJ-2)
-                    <!-- 右上角 HUD -->
-                    <span id="hud-hp" class="raw-display">Init...</span>
-                </label>
-                <input type="number" id="in-hp" placeholder="0-24000" value="24000">
-                <div class="hint">决定生存能力的关键参数</div>
+                <label>装备血量 (EQUIP HEALTH) <span id="hud-hp" class="raw-display">Init...</span></label>
+                <input type="number" id="in-hp" placeholder="0-24000" disabled>
+                <div class="hint">只读：由等级演算生成的 Raw 数值</div>
             </div>
         </div>
     </div>
 
-    <!-- 结果输出 -->
     <div class="panel">
         <h2>生成结果 (Generate) // <span style="color:var(--text-muted); font-size:0.8em; margin-left:10px;">OUTPUT</span></h2>
-        <div class="output-box" id="output">xxxx-xxxx-xxxx-xxxx</div>
-        <button class="btn" onclick="copyResult()">复制存档代码</button>
+        <div class="output-box" id="output">等待指令 (WAITING)</div>
+        <button class="btn" id="btn-action" onclick="handleGenerate()">计算并生成代码</button>
+        <input type="hidden" id="api-url" value="https://larissa-teeny-radiologically.ngrok-free.dev">
+        <div class="integrated-api">● Connected: larissa-teeny...dev</div>
     </div>
 </div>
 
 <script>
-    // 页面加载后自动滚动到最底部
-    window.onload = function() {
-        window.scrollTo(0, document.body.scrollHeight);
-    };
+    // 恢复原始程序中的 HUD 预览基数
+    const PREVIEW_BASE = 20;
 
-    // 常量定义
-    const C = {
-        KEY: 5369,
-        E: [0, 6, 2, 1, 9, 8, 4, 7, 5, 3],
-        U: 5.017,
-        BASE: 20
-    };
-
-    // 元素获取
     const els = {
         lvl: document.getElementById('in-lvl'),
         title: document.getElementById('sel-title'),
@@ -340,169 +261,114 @@
         dmg: document.getElementById('in-dmg'),
         hp: document.getElementById('in-hp'),
         auto: document.getElementById('autoMode'),
-        
         dispLvl: document.getElementById('disp-lvl'),
         dispTitle: document.getElementById('disp-title'),
         dispWing: document.getElementById('disp-wing'),
         hudDps: document.getElementById('hud-dps'),
         hudHp: document.getElementById('hud-hp'),
-        
-        out: document.getElementById('output')
+        out: document.getElementById('output'),
+        btn: document.getElementById('btn-action'),
+        apiUrl: document.getElementById('api-url')
     };
 
-    // 核心：自然属性模拟
-    function getNaturalStats(lvl) {
-        // 软上限逻辑 300
+    function calc() {
+        const lvl = parseInt(els.lvl.value) || 0;
+        const titleVal = parseInt(els.title.value);
+        const wingVal = parseInt(els.wing.value);
+
+        // 核心逻辑：完全恢复原始代码的算法部分
         const effectiveLvl = Math.min(lvl, 299);
-        let simDps = 0; 
-        let simHp = 0;
-        
-        // 积分累加模拟
+        let simDps = 0, simHp = 0;
         for(let i=1; i<effectiveLvl; i++) {
             simDps += 2.2 + Math.pow(i, 1.02) * 0.1;
             simHp += 1.8 + Math.pow(i, 1.01) * 0.1;
         }
-        return { 
-            dps: Math.floor(simDps), 
-            hp: Math.floor(simHp) 
-        };
-    }
+        
+        let dmgVal = Math.floor(simDps);
+        let hpVal = Math.floor(simHp);
+        
+        // 更新只读输入框的值
+        els.dmg.value = dmgVal;
+        els.hp.value = hpVal;
 
-    // 主逻辑：UI更新与计算
-    function calc() {
-        const lvl = els.lvl.value === "" ? 0 : parseInt(els.lvl.value);
-        const titleVal = parseInt(els.title.value);
-        const wingVal = parseInt(els.wing.value);
-        const isAuto = els.auto.checked;
-
-        let dmgVal, hpVal;
-
-        // 1. 处理自动/手动模式
-        if(isAuto) {
-            const stats = getNaturalStats(lvl);
-            dmgVal = stats.dps;
-            hpVal = stats.hp;
-            els.dmg.value = dmgVal;
-            els.hp.value = hpVal;
-            els.dmg.disabled = true;
-            els.hp.disabled = true;
-        } else {
-            els.dmg.disabled = false;
-            els.hp.disabled = false;
-            dmgVal = parseInt(els.dmg.value) || 0;
-            hpVal = parseInt(els.hp.value) || 0;
-        }
-
-        // 2. Raw数据显示
         els.dispLvl.innerText = `Lv.${lvl}`;
         els.dispTitle.innerText = `Val:${titleVal}`;
         els.dispWing.innerText = `Val:${wingVal}`;
 
-        // 3. 核心计算：HUD面板预测 (Core Requirement 3)
-        // 剑 HUD: 仅与输入值(CZDJ)有关 -> Input * 5
+        // 恢复原始程序的 HUD 计算公式 (Preview)
         const swordDps = dmgVal * 5;
         const swordHp = hpVal * 5;
+        const bossBonusRaw = (titleVal === 8) ? 4000 : 0; 
+        const panelDps = (PREVIEW_BASE + dmgVal + bossBonusRaw) * 5;
+        const panelHp = (PREVIEW_BASE + hpVal + bossBonusRaw) * 5;
 
-        // 额外加成计算 (威震天下 Lv.8 特权)
-        const bossBonusRaw = (titleVal === 8) ? 4000 : 0;
-
-        // 面板 HUD: (基础20 + 输入值 + 特殊加成) * 5
-        const panelDps = (C.BASE + dmgVal + bossBonusRaw) * 5;
-        const panelHp = (C.BASE + hpVal + bossBonusRaw) * 5;
-
-        // 渲染 HUD String
         els.hudDps.innerHTML = `剑${swordDps} <span style="color:#666">|</span> 力${panelDps}`;
         els.hudHp.innerHTML = `剑${swordHp} <span style="color:#666">|</span> 耐${panelHp}`;
 
-        // 溢出警告 (如果你认为超过50万是危险值)
-        if(panelDps > 500000) els.hudDps.classList.add('danger'); 
-        else els.hudDps.classList.remove('danger');
-        
-        if(panelHp > 500000) els.hudHp.classList.add('danger'); 
-        else els.hudHp.classList.remove('danger');
+        if(panelDps > 500000) els.hudDps.classList.add('danger'); else els.hudDps.classList.remove('danger');
+        if(panelHp > 500000) els.hudHp.classList.add('danger'); else els.hudHp.classList.remove('danger');
 
-        // 4. 调用加密生成
-        const code = generateCode(hpVal, lvl, titleVal, wingVal, dmgVal);
-        els.out.innerText = code;
+        // 重置按钮状态
+        if(els.out.innerText.includes('-') || els.out.innerText.trim() !== "等待指令 (WAITING)") {
+             els.out.innerText = "等待指令 (WAITING)";
+             els.out.className = "output-box";
+             els.btn.innerText = "计算并生成代码";
+             els.btn.disabled = false;
+        }
     }
 
-    // 加密算法 (工坊复刻)
-    function generateCode(j0_raw, j1, j2, j3, j4_raw) {
-        // 保存处理：数值需 / 3
-        const j = [
-            Math.floor(j0_raw / 3), // T[0]: HP
-            j1,                     // T[1]: Lv
-            j2,                     // T[2]: Title
-            j3,                     // T[3]: Wing
-            Math.floor(j4_raw / 3)  // T[4]: DPS
-        ];
-
-        // 校验和 J[5]
-        let sum = 0;
-        for(let i=0; i<5; i++) sum += (j[i] > 8000 ? 8000 : j[i]) + i;
-        
-        let check = 0;
-        if(sum > 875) {
-            let tmp = sum, v = 0.0;
-            while(tmp > 768) { v += 0.27; tmp -= 740; }
-            check = Math.round(tmp + 100 * v);
-        } else {
-            check = Math.floor(sum / C.U) + 4756;
+    async function handleGenerate() {
+        const outputHasCode = els.out.innerText.includes('-');
+        if (outputHasCode && !els.out.classList.contains('error')) {
+            navigator.clipboard.writeText(els.out.innerText);
+            const org = els.btn.innerText;
+            els.btn.innerText = "✓ 已复制到剪贴板";
+            setTimeout(()=> els.btn.innerText = org, 1500);
+            return;
         }
-        j.push(check);
 
-        // 加密变换 Save12
-        return j.map(val => encrypt(val)).map(s => String(s).padStart(4,'0')).join('-');
-    }
+        const lvl = parseInt(els.lvl.value) || 0;
+        const title = parseInt(els.title.value);
+        const wing = parseInt(els.wing.value);
+        const dmg = parseInt(els.dmg.value) || 0;
+        const hp = parseInt(els.hp.value) || 0;
+        const apiUrl = els.apiUrl.value.replace(/\/$/, "");
 
-    function encrypt(val) {
-        let p0 = val, p1 = C.KEY, r = 0;
-        // 位模拟
-        for(let q=13; q>=0; q--) {
-            let p2 = Math.pow(2,q);
-            if( (p0>=p2 && p1<p2) || (p0<p2 && p1>=p2) ) r += p2;
-            if(p0 >= p2) p0 -= p2;
-            if(p1 >= p2) p1 -= p2;
-        }
-        // 数位旋转
-        let digitsSum = 0, tmpR = r;
-        for(let q=3; q>=0; q--) {
-            let d = Math.floor(tmpR/Math.pow(10,q));
-            digitsSum += d;
-            tmpR %= Math.pow(10,q);
-        }
-        let shift = digitsSum % 4;
-        let cut = Math.pow(10, shift);
-        r = Math.floor(r/cut) + Math.pow(10, 4-shift) * (r%cut);
-        // E表置换
-        let final = 0; tmpR = r;
-        for(let q=3; q>=0; q--) {
-            let d = Math.floor(tmpR/Math.pow(10,q));
-            final += Math.pow(10,q) * C.E[d];
-            tmpR %= Math.pow(10,q);
-        }
-        return final;
-    }
+        els.btn.disabled = true;
+        els.btn.innerText = "正在链接卫星 (CONNECTING)...";
+        els.out.innerText = "CALCULATING...";
+        els.out.className = "output-box loading";
 
-    function copyResult() {
-        navigator.clipboard.writeText(els.out.innerText);
-        const btn = document.querySelector('.btn');
-        const org = btn.innerText;
-        btn.innerText = "✓ 存档码已复制到剪贴板";
-        btn.style.background = "#fff";
-        btn.style.color = "#000";
-        setTimeout(()=> {
-            btn.innerText = org;
-            btn.style.background = "";
-            btn.style.color = "";
-        }, 1000);
+        try {
+            const controller = new AbortController();
+            setTimeout(() => controller.abort(), 12000); 
+            const response = await fetch(`${apiUrl}/api/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lvl, title, wing, dmg, hp }),
+                signal: controller.signal
+            });
+            const data = await response.json();
+            if (data.success) {
+                els.out.innerText = data.code;
+                els.out.className = "output-box";
+                els.btn.innerText = "复制存档代码";
+            } else {
+                throw new Error(data.error || "Server Fail");
+            }
+        } catch (error) {
+            els.out.innerText = `ERR: ${error.name==='AbortError'?'Timeout':error.message}`;
+            els.out.className = "output-box error";
+            els.btn.innerText = "重试";
+        } finally {
+            els.btn.disabled = false;
+        }
     }
 
     // 绑定事件
-    [els.lvl, els.title, els.wing, els.dmg, els.hp].forEach(e => e.addEventListener('input', calc));
-    els.auto.addEventListener('change', calc);
-
-    // Init
+    [els.lvl, els.title, els.wing].forEach(e => e.addEventListener('input', calc));
+    
+    // 初始运行
     calc();
 </script>
 
