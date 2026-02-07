@@ -256,7 +256,7 @@
             for(let i = 9; i >= 0; i--) { let val = i+1; opt($(id), `[${pad(val)}] ${D.gr[i]}`, val); }
             opt($(id), "[00] 无", 0);
             // 修改点：强制所有品阶为神一品 (Value 9)
-           // $(id).value = 9; 
+            $(id).value = 9; 
         });
 
         $('sect').addEventListener('change', refreshRoles);
